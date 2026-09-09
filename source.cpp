@@ -82,6 +82,7 @@ void getChecker(std::vector<Checker> & hold_Checker)
 		std::cin.ignore();
 
 		hold_Checker.push_back(Checker(name, checkstand, timeIn, timeOut));
+		std::cout << std::endl;
 	}
 }
 
@@ -113,6 +114,7 @@ void getGMC(std::vector<GMC> & hold_GMC)
 		std::getline(std::cin, timeOut);
 
 		hold_GMC.push_back(GMC(name, timeIn, timeOut));
+		std::cout << std::endl;
 	}
 }
 
@@ -144,6 +146,7 @@ void getCC(std::vector<CourtesyClerk> & hold_CC)
 		std::getline(std::cin, timeOut);
 
 		hold_CC.push_back(CourtesyClerk(name, timeIn, timeOut));
+		std::cout << std::endl;
 	}
 }
 
