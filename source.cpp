@@ -162,10 +162,17 @@ void fillAssignments(std::vector<assignments> & hold_assignments, std::vector<GM
 		assignments assign;
 		for(auto gmc : hold_GMC)
 		{
-			if(stoi(gmc.timeIn) == i)
+			if(stoi(gmc.timeIn) == 6)
 			{
 				assign.carts = gmc.name;
+				assign.sweeps = gmc.name;
+				assign.goBacks = gmc.name;
 				break;
+			}
+
+			else if((stoi(gmc.timeIn) == i))
+			{
+				assign.carts = gmc.name;
 			}
 		}
 
