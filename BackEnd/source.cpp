@@ -71,10 +71,10 @@ void getChecker(std::vector<Checker> & hold_Checker)
 		std::cout << "Enter name: " << std::endl;
 		std::getline(std::cin, name);
 
-		std::cout << "Enter time in (ex 6:30am)" << std::endl;
+		std::cout << "Enter time in (in military time, ex 6:30 or 18:30)" << std::endl;
 		std::getline(std::cin, timeIn);
 
-		std::cout << "Enter time out (ex 6:30pm)" << std::endl;
+		std::cout << "Enter time out (in military time, ex 6:30 or 18:30)" << std::endl;
 		std::getline(std::cin, timeOut);
 
 		std::cout << "Enter checkstand: " << std::endl;
@@ -107,10 +107,10 @@ void getGMC(std::vector<GMC> & hold_GMC)
 		std::cout << "Enter name: " << std::endl;
 		std::getline(std::cin, name);
 
-		std::cout << "Enter time in (ex 6:30am)" << std::endl;
+		std::cout << "Enter time in (in military time, ex 6:30 or 18:30)" << std::endl;
 		std::getline(std::cin, timeIn);
 
-		std::cout << "Enter time out (ex 6:30pm)" << std::endl;
+		std::cout << "Enter time out (in military time, ex 6:30 or 18:30)" << std::endl;
 		std::getline(std::cin, timeOut);
 
 		hold_GMC.push_back(GMC(name, timeIn, timeOut));
@@ -139,10 +139,10 @@ void getCC(std::vector<CourtesyClerk> & hold_CC)
 		std::cout << "Enter name: " << std::endl;
 		std::getline(std::cin, name);
 
-		std::cout << "Enter time in (ex 6:30am)" << std::endl;
+		std::cout << "Enter time in (in military time, ex 6:30 or 18:30)" << std::endl;
 		std::getline(std::cin, timeIn);
 
-		std::cout << "Enter time out (ex 6:30pm)" << std::endl;
+		std::cout << "Enter time out (in military time, ex 6:30 or 18:30)" << std::endl;
 		std::getline(std::cin, timeOut);
 
 		hold_CC.push_back(CourtesyClerk(name, timeIn, timeOut));
