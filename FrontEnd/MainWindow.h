@@ -11,8 +11,9 @@ class MainWindow : public QMainWindow
 public:
     MainWindow();
 private:
-    QLineEdit *nameInput;
-    QComboBox *dropDown;
+    QComboBox *nameInput;
+    QComboBox *timeIn;
+    QComboBox *timeOut;
 };
 
 #endif // MAINWINDOW_H
