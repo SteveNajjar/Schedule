@@ -5,15 +5,7 @@
 
 MainWindow::MainWindow()
 {
-    //std::string time_array[2] = {"6:00am", "6:30am"};
-    //QList<QString> times = {"6:00am", "6:30am"};
-    QString employee_one = "Ryland Williams";
-    QString employee_two = "Evan Winkler";
-    QString employee_three = "Steve Najjar";
-    QList<QString> people;
-    people.append(employee_one);
-    people.append(employee_two);
-    people.append(employee_three);
+
 
     setWindowTitle("Stater Scheduler");
     resize(1000,600);
@@ -21,7 +13,7 @@ MainWindow::MainWindow()
     nameInput = new QComboBox(this);
     nameInput->setPlaceholderText("Enter your name");
     nameInput->setGeometry(0, 100, 200, 30);
-    nameInput->addItems(QStringList(people));
+    nameInput->addItems(QStringList(getEmployees()));
 
     timeIn = new QComboBox(this);
     timeIn->setPlaceholderText("Choose a start time");
