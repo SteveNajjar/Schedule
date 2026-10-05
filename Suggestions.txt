@@ -1,0 +1,6 @@
+shift from 0:00 to 8:00
+break 1 can be assigned between 1:00 and 3:00
+lunch can be assigned between 3:00 and 5:00
+break 2 can be assigned between 5:00 and 7:00
+at the minimum, the distance between a break and lunch or vice versa is 1 hour
+  i.e. if a break is assigned at 3:00, lunch cannot start until 4:00 (even if lunch can theoretically be given at 3:00)
