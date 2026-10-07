@@ -5,7 +5,10 @@ break 2 can be assigned between 5:00 and 7:00
 at the minimum, the distance between a break and lunch or vice versa is 1 hour
   i.e. if a break is assigned at 3:00, lunch cannot start until 4:00 (even if lunch can theoretically be given at 3:00)
 
-More Ideas
+We need to find a way to attach the front end to the back end.
+Front end will absolutely use AM/PM times while backend works in military time
+
+More Ideas (debating on this)
 std::unordered_map of std::string keys and float/double values (would require massive overhaul of structure)
   keys store time as a string (9:30 AM), values store time as floats for calculations (9.5)
   values hold numbers corresponding to military time, keys could be in AM/PM OR military time (preferably the former since the input could be received from front end)
