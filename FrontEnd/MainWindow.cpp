@@ -1,30 +1,57 @@
 #include "MainWindow.h"
-#include <QLineEdit>
 #include <QComboBox>
 #include <QString>
+#include <QTableWidget>
+#include <QHeaderView>
 
 MainWindow::MainWindow()
 {
-
-
     setWindowTitle("Stater Scheduler");
-    resize(1000,600);
+    resize(1000, 600);
 
-    nameInput = new QComboBox(this);
-    nameInput->setPlaceholderText("Enter your name");
-    nameInput->setGeometry(0, 100, 200, 30);
-    nameInput->addItems(QStringList(getEmployees()));
+    // Create a table with 12 rows and 3 columns
+    tableWidget = new QTableWidget(14, 3, this);
+    tableWidget->setGeometry(100, 100, 800, 450);
 
-    timeIn = new QComboBox(this);
-    timeIn->setPlaceholderText("Choose a start time");
-    timeIn->setGeometry(400, 100, 200, 30);
-    timeIn->addItems(QStringList(getStartTimes()));
+    // Set column headers
+    tableWidget->setHorizontalHeaderLabels({
+        "Employee Name",
+        "Time In",
+        "Time Out"
+    });
 
-    timeOut = new QComboBox(this);
-    timeOut->setPlaceholderText("Choose an end time");
-    timeOut->setGeometry(800, 100, 200, 30);
-    timeOut->addItems(QStringList(getEndTimes()));
+    // Make columns fill the table
+    tableWidget->horizontalHeader()
+        ->setSectionResizeMode(QHeaderView::Stretch);
 
+    // Create dropdown menus for every row
+    for (int row = 0; row < 14; row++)
+    {
+        // Employee dropdown
+        QComboBox *nameInput = new QComboBox();
+	nameInput->setEditable(true);
+	nameInput->setFrame(false);
+        nameInput->addItem("Select employee");
+        nameInput->addItems(getEmployees());
 
+        // Start time dropdown
+        QComboBox *timeIn = new QComboBox();
+	timeIn->setEditable(true);
+	timeIn->setFrame(false);
+        timeIn->addItem("Select start time");
+        timeIn->addItems(getStartTimes());
 
+        // End time dropdown
+        QComboBox *timeOut = new QComboBox();
+	timeOut->setEditable(true);
+	timeOut->setFrame(false);
+        timeOut->addItem("Select end time");
+        timeOut->addItems(getEndTimes());
+
+        // Insert dropdowns into the table
+        tableWidget->setCellWidget(row, 0, nameInput);
+        tableWidget->setCellWidget(row, 1, timeIn);
+        tableWidget->setCellWidget(row, 2, timeOut);
+    }
 }
+
