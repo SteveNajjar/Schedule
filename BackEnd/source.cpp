@@ -6,6 +6,8 @@
 #include <fstream>
 #include <string>
 #include <iostream>
+#include <algorithm>
+#include <limits>
 
 // hold assignments
 struct assignments
@@ -43,8 +45,23 @@ int main()
 	std::vector<assignments> hold_assignments;
 
 	getChecker(hold_Checker);
-	// getGMC(hold_GMC);
-	// getCC(hold_CC);
+	getGMC(hold_GMC);
+	getCC(hold_CC);
+
+	// Coordinate all break schedules together so different employee types
+	// are included in the same overlap checks.
+	std::vector<Helper::BreakSchedule> breakSchedules;
+	for (auto &checker : hold_Checker)
+		breakSchedules.push_back({Helper::toMinutes(checker.timeIn), Helper::toMinutes(checker.timeOut), 0,
+		                          &checker.breakOne, &checker.lunch, &checker.breakTwo});
+	for (auto &gmc : hold_GMC)
+		breakSchedules.push_back({Helper::toMinutes(gmc.timeIn), Helper::toMinutes(gmc.timeOut), 1,
+		                          &gmc.breakOne, &gmc.lunch, &gmc.breakTwo});
+	for (auto &cc : hold_CC)
+		breakSchedules.push_back({Helper::toMinutes(cc.timeIn), Helper::toMinutes(cc.timeOut), 2,
+		                          &cc.breakOne, &cc.lunch, &cc.breakTwo});
+	Helper::avoidBreakOverlaps(breakSchedules);
+
 	fillAssignments(hold_assignments, hold_GMC, hold_CC);
 	print(hold_Checker, hold_GMC, hold_CC);
 }
@@ -152,40 +169,72 @@ void getCC(std::vector<CourtesyClerk> & hold_CC)
 
 void fillAssignments(std::vector<assignments> & hold_assignments, std::vector<GMC> hold_GMC, std::vector<CourtesyClerk> hold_CC)
 {
-	// fill carts, sweeps, go backs, bagging for full 17 hours 6:00 - 23:00
-	// push back a name for carts, sweeps, go backs, bagging for each hour
-	// nothing during lunch, avoid during breaks
-	// if janitor, sweeps whole time, no go backs
+	// Each row represents one store hour: 6:00-7:00 through 22:00-23:00.
+	// The employee doing sweeps also handles go-backs, per the store rules.
+	using Worker = std::pair<std::string, std::pair<int, int>>; // name, [start, end)
+	const auto toMinutes = [](const std::string &time) {
+		const std::size_t colon = time.find(':');
+		const int hours = std::stoi(time.substr(0, colon));
+		const int minutes = colon == std::string::npos ? 0 : std::stoi(time.substr(colon + 1));
+		return hours * 60 + minutes;
+	};
+	std::vector<Worker> workers;
+	for (const auto &gmc : hold_GMC)
+		workers.push_back({gmc.name, {toMinutes(gmc.timeIn), toMinutes(gmc.timeOut)}});
+	for (const auto &cc : hold_CC)
+		workers.push_back({cc.name, {toMinutes(cc.timeIn), toMinutes(cc.timeOut)}});
 
-	for(int i = 6; i < 23; i++)
+	hold_assignments.clear();
+	std::vector<int> taskCounts(workers.size(), 0);
+	int lastCarts = -1;
+	int lastSweeps = -1;
+	for (int hour = 6; hour < 23; ++hour)
 	{
+		const int hourStart = hour * 60;
+		const int hourEnd = hourStart + 60;
+		std::vector<int> available;
+		for (std::size_t i = 0; i < workers.size(); ++i)
+			if (workers[i].second.first < hourEnd && workers[i].second.second > hourStart)
+				available.push_back(static_cast<int>(i));
+
+		const auto choose = [&](int previous, int avoid) {
+			int selected = -1;
+			int fewestTasks = std::numeric_limits<int>::max();
+			for (int index : available)
+			{
+				if (index == previous || index == avoid) continue;
+				if (taskCounts[index] < fewestTasks) {
+					selected = index;
+					fewestTasks = taskCounts[index];
+				}
+			}
+			// Keep the hour covered when staffing is limited, even if this
+			// means reusing the previous worker or assigning both tasks to one person.
+			if (selected < 0)
+				for (int index : available)
+					if (taskCounts[index] < fewestTasks) {
+						selected = index;
+						fewestTasks = taskCounts[index];
+					}
+			return selected;
+		};
+
 		assignments assign;
-		for(auto gmc : hold_GMC)
-		{
-			if(stoi(gmc.timeIn) == 6)
-			{
-				assign.carts = gmc.name;
-				assign.sweeps = gmc.name;
-				assign.goBacks = gmc.name;
-				break;
-			}
-
-			else if((stoi(gmc.timeIn) == i))
-			{
-				assign.carts = gmc.name;
-			}
+		const int carts = choose(lastCarts, -1);
+		const int sweeps = choose(lastSweeps, carts);
+		if (carts >= 0) {
+			assign.carts = workers[carts].first;
+			++taskCounts[carts];
+			lastCarts = carts;
 		}
-
-		for(auto cc : hold_CC)
-		{
-			if(stoi(cc.timeIn) == i)
-			{
-				assign.sweeps = cc.name;
-				break;
-			}
+		if (sweeps >= 0) {
+			assign.sweeps = workers[sweeps].first;
+			assign.goBacks = workers[sweeps].first;
+			++taskCounts[sweeps];
+			lastSweeps = sweeps;
 		}
+		hold_assignments.push_back(assign);
 	}
-
 	}
 
 void print(std::vector<Checker> & hold_Checker, std::vector<GMC> & hold_GMC, std::vector<CourtesyClerk> & hold_CC)
