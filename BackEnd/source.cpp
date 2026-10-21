@@ -63,6 +63,7 @@ int main()
 
 	fillAssignments(hold_assignments, hold_GMC, hold_CC, hold_Janitors);
 	print(hold_Checker, hold_GMC, hold_CC, hold_Janitors, hold_assignments);
+	return 0;
 }
 
 
@@ -202,7 +203,6 @@ void fillAssignments(std::vector<assignments> &hold_assignments,
 		int start;
 		int end;
 		bool isJanitor;
-		int taskCount = 0;
 	};
 	std::vector<Worker> workers;
 	for (const auto &gmc : hold_GMC)
@@ -214,6 +214,12 @@ void fillAssignments(std::vector<assignments> &hold_assignments,
 		                   Helper::toMinutes(janitor.timeOut), true});
 
 	hold_assignments.clear();
+	std::vector<int> cartsCounts(workers.size(), 0);
+	std::vector<int> sweepsCounts(workers.size(), 0);
+	std::vector<int> goBacksCounts(workers.size(), 0);
+	int lastCarts = -1;
+	int lastSweeps = -1;
+	int lastGoBacks = -1;
 	const auto appendName = [](std::string &field, const std::string &name)
 	{
 		if (field != " ")
@@ -229,7 +235,12 @@ void fillAssignments(std::vector<assignments> &hold_assignments,
 		std::vector<int> availableStaff;
 		for (std::size_t i = 0; i < workers.size(); ++i)
 		{
-			if (workers[i].start < hourEnd && workers[i].end > hourStart)
+			const int overlapStart = std::max(workers[i].start, hourStart);
+			const int overlapEnd = std::min(workers[i].end, hourEnd);
+			// Schedule only staff who cover at least half of this hour. This
+			// avoids assigning a whole hourly slot to someone on shift for only
+			// a few minutes at the edge of the hour.
+			if (overlapEnd - overlapStart >= 30)
 				availableStaff.push_back(static_cast<int>(i));
 		}
 
@@ -251,63 +262,73 @@ void fillAssignments(std::vector<assignments> &hold_assignments,
 			}
 		}
 
-		// Pick the least-used eligible employee, avoiding people already
-		// assigned to another task during this hour whenever staffing allows.
+		// Pick the least-used eligible employee. First avoid both someone
+		// already assigned this hour and the person who did this task last hour.
+		// If that leaves nobody, allow the previous worker; only share tasks
+		// when there is no other eligible employee.
 		const auto chooseStaff = [&](const std::vector<int> &candidates,
-								 const std::vector<int> &alreadyUsed)
+								 const std::vector<int> &alreadyUsed,
+								 const std::vector<int> &taskCounts,
+								 int previousWorker)
 		{
-			int selected = -1;
-			for (int candidate : candidates)
+			const auto pick = [&](bool allowPrevious, bool allowUsed)
 			{
-				if (std::find(alreadyUsed.begin(), alreadyUsed.end(), candidate) != alreadyUsed.end())
-					continue;
-				if (selected == -1 || workers[candidate].taskCount < workers[selected].taskCount)
-					selected = candidate;
-			}
-			if (selected == -1)
-			{
+				int selected = -1;
 				for (int candidate : candidates)
 				{
-					if (selected == -1 || workers[candidate].taskCount < workers[selected].taskCount)
+					const bool alreadyAssigned = std::find(alreadyUsed.begin(), alreadyUsed.end(), candidate) != alreadyUsed.end();
+					if (!allowUsed && alreadyAssigned) continue;
+					if (!allowPrevious && candidate == previousWorker) continue;
+					if (selected == -1 || taskCounts[candidate] < taskCounts[selected])
 						selected = candidate;
 				}
-			}
+				return selected;
+			};
+
+			int selected = pick(false, false);
+			if (selected == -1) selected = pick(true, false);
+			if (selected == -1) selected = pick(true, true);
 			return selected;
 		};
 
 		std::vector<int> used;
-		const int carts = chooseStaff(otherStaff, used);
+		const int carts = chooseStaff(otherStaff, used, cartsCounts, lastCarts);
 		if (carts >= 0)
 		{
 			assign.carts = workers[carts].name;
 			assignedToTask[carts] = true;
 			used.push_back(carts);
-			++workers[carts].taskCount;
+			++cartsCounts[carts];
+			lastCarts = carts;
 		}
 
 		if (janitorsOnShift.empty())
 		{
 			// Without a janitor, the sweeper also handles go-backs.
-			const int sweeper = chooseStaff(otherStaff, used);
+			const int sweeper = chooseStaff(otherStaff, used, sweepsCounts, lastSweeps);
 			if (sweeper >= 0)
 			{
 				assign.sweeps = workers[sweeper].name;
 				assign.goBacks = workers[sweeper].name;
 				assignedToTask[sweeper] = true;
-				++workers[sweeper].taskCount;
+				++sweepsCounts[sweeper];
+				++goBacksCounts[sweeper];
+				lastSweeps = sweeper;
+				lastGoBacks = sweeper;
 			}
 		}
 		else
 		{
 			// A janitor remains on sweeps. Assign go-backs to a different,
 			// non-janitor employee; avoid the carts person when possible.
-			const int goBacks = chooseStaff(otherStaff, used);
+			const int goBacks = chooseStaff(otherStaff, used, goBacksCounts, lastGoBacks);
 			if (goBacks >= 0)
 			{
 				assign.goBacks = workers[goBacks].name;
 				assignedToTask[goBacks] = true;
 				used.push_back(goBacks);
-				++workers[goBacks].taskCount;
+				++goBacksCounts[goBacks];
+				lastGoBacks = goBacks;
 			}
 		}
 
@@ -318,7 +339,6 @@ void fillAssignments(std::vector<assignments> &hold_assignments,
 			if (!assignedToTask[index])
 			{
 				appendName(assign.bagging, workers[index].name);
-				++workers[index].taskCount;
 			}
 		}
 		hold_assignments.push_back(assign);
