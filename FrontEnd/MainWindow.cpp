@@ -171,12 +171,6 @@ MainWindow::MainWindow()
 
 		}
 
-		std::cout << "DEBUG: Before moving vectors\n";
-
-		std::cout << "Checkers: " << newCheckers.size() << '\n';
-		std::cout << "GMCs: " << newGMCs.size() << '\n';
-		std::cout << "Courtesy Clerks: " << newCCs.size() << '\n';
-
 		hold_Checker = std::move(newCheckers);
 		hold_GMC = std::move(newGMCs);
 		hold_CC = std::move(newCCs);
