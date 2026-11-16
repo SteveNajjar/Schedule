@@ -1,27 +1,18 @@
-#include "CourtesyClerk.h"
-#include "GMC.h"
-#include "Checker.h"
+#include "source.h"
 #include "Helper.h"
+
 #include <vector>
 #include <fstream>
 #include <string>
 #include <iostream>
 
 // hold assignments
-struct assignments
-	{
-		std::string carts = " ";
-		std::string sweeps = " ";
-		std::string goBacks = " ";
-		std::string bagging = " ";
-	};
 	
-void getChecker(std::vector<Checker> & hold_Checker);
-void getGMC(std::vector<GMC> & hold_GMC);
-void getCC(std::vector<CourtesyClerk> & hold_CC);
 void print(std::vector<Checker> & hold_Checker, std::vector<GMC> & hold_GMC, std::vector<CourtesyClerk> & hold_CC);
 void fillAssignments(std::vector<assignments> & hold_assignments, std::vector<GMC> hold_GMC, std::vector<CourtesyClerk> hold_CC);
 
+
+#ifndef QT_FRONTEND_BUILD
 int main()
 {
 	// want "carts" "sweeps" "go backs" "baggging" to all be randomly assigned
@@ -42,114 +33,53 @@ int main()
 	std::vector<Checker> hold_Checker;
 	std::vector<assignments> hold_assignments;
 
-	getChecker(hold_Checker);
+	// getChecker(hold_Checker);
 	// getGMC(hold_GMC);
 	// getCC(hold_CC);
 	fillAssignments(hold_assignments, hold_GMC, hold_CC);
 	print(hold_Checker, hold_GMC, hold_CC);
 }
 
+#endif
 
-
-void getChecker(std::vector<Checker> & hold_Checker)
+void getChecker(
+    std::vector<Checker>& hold_Checker,
+    const std::string& name,
+    const std::string& timeIn,
+    const std::string& timeOut
+)
 {
-		int dailyNum = 0;
+    int checkstand = 1;
 
-		std::string name = " ";
-		std::string timeIn = " ";
-		std::string timeOut = " ";
-		int checkstand = 0;
+    for (const Checker& checker : hold_Checker)
+    {
+        if (checker.checkstand >= checkstand)
+        {
+            checkstand = checker.checkstand + 1;
+        }
+    }
 
-	std::cout << "Enter number of Checkers today: " << std::endl;
-	std::cin >> dailyNum;
-	std::cin.ignore();
-
-	std::cout << "Populate Checker information: " << std::endl;
-
-	for(int i = 0; i < dailyNum; i++)
-	{
-		std::cout << "Enter name: " << std::endl;
-		std::getline(std::cin, name);
-
-		std::cout << "Enter time in (in military time, ex 6:30 or 18:30)" << std::endl;
-		std::getline(std::cin, timeIn);
-
-		std::cout << "Enter time out (in military time, ex 6:30 or 18:30)" << std::endl;
-		std::getline(std::cin, timeOut);
-
-		std::cout << "Enter checkstand: " << std::endl;
-		std::cin >> checkstand;
-		std::cin.ignore();
-
-		hold_Checker.push_back(Checker(name, checkstand, timeIn, timeOut));
-		std::cout << std::endl;
-	}
+    hold_Checker.push_back(Checker(name, checkstand, timeIn, timeOut));
+}
+void getGMC(
+    std::vector<GMC>& hold_GMC,
+    const std::string& name,
+    const std::string& timeIn,
+    const std::string& timeOut
+)
+{
+    hold_GMC.push_back(GMC(name, timeIn, timeOut));
 }
 
-
-
-void getGMC(std::vector<GMC> & hold_GMC)
+void getCC(
+    std::vector<CourtesyClerk>& hold_CC,
+    const std::string& name,
+    const std::string& timeIn,
+    const std::string& timeOut
+)
 {
-		int dailyNum = 0;
-
-		std::string name = " ";
-		std::string timeIn = " ";
-		std::string timeOut = " ";
-
-	std::cout << "Enter number of GMC's today: " << std::endl;
-	std::cin >> dailyNum;
-	std::cin.ignore();
-
-	std::cout << "Populate GMC information: " << std::endl;
-
-	for(int i = 0; i < dailyNum; i++)
-	{
-		std::cout << "Enter name: " << std::endl;
-		std::getline(std::cin, name);
-
-		std::cout << "Enter time in (in military time, ex 6:30 or 18:30)" << std::endl;
-		std::getline(std::cin, timeIn);
-
-		std::cout << "Enter time out (in military time, ex 6:30 or 18:30)" << std::endl;
-		std::getline(std::cin, timeOut);
-
-		hold_GMC.push_back(GMC(name, timeIn, timeOut));
-		std::cout << std::endl;
-	}
+    hold_CC.push_back(CourtesyClerk(name, timeIn, timeOut));
 }
-
-
-
-void getCC(std::vector<CourtesyClerk> & hold_CC)
-{
-		int dailyNum = 0;
-
-		std::string name = " ";
-		std::string timeIn = " ";
-		std::string timeOut = " ";
-
-	std::cout << "Enter number of Courtesy clerks today: " << std::endl;
-	std::cin >> dailyNum;
-	std::cin.ignore();
-
-	std::cout << "Populate Courtesy Clerk information: " << std::endl;
-
-	for(int i = 0; i < dailyNum; i++)
-	{
-		std::cout << "Enter name: " << std::endl;
-		std::getline(std::cin, name);
-
-		std::cout << "Enter time in (in military time, ex 6:30 or 18:30)" << std::endl;
-		std::getline(std::cin, timeIn);
-
-		std::cout << "Enter time out (in military time, ex 6:30 or 18:30)" << std::endl;
-		std::getline(std::cin, timeOut);
-
-		hold_CC.push_back(CourtesyClerk(name, timeIn, timeOut));
-		std::cout << std::endl;
-	}
-}
-
 void fillAssignments(std::vector<assignments> & hold_assignments, std::vector<GMC> hold_GMC, std::vector<CourtesyClerk> hold_CC)
 {
 	// fill carts, sweeps, go backs, bagging for full 17 hours 6:00 - 23:00

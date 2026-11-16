@@ -5,6 +5,7 @@
 #include <QComboBox>
 #include <QStringList>
 #include <QTableWidget>
+#include "source.h"
 
 class QLineEdit;
 
@@ -26,6 +27,10 @@ public:
     }
 
 private:
+
+    std::vector<Checker> hold_Checker;
+    std::vector<GMC> hold_GMC;
+    std::vector<CourtesyClerk> hold_CC;
 
     QList<QString> startTimes = {"6:00am", "6:30am", "7:00am", "7:30am", "8:00am", "8:30am", "9:00am",
 	    			 "9:30am", "10:00am", "10:30am", "11:00am", "11:30am", "12:00pm"};
