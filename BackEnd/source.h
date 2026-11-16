@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 
+#include "Janitor.h"
 #include "Checker.h"
 #include "GMC.h"
 #include "CourtesyClerk.h"
@@ -37,17 +38,19 @@ void getCC(
 );
 
 void print(
-	std::vector<Checker> & hold_Checker,
-	std::vector<GMC> & hold_GMC,
-	std::vector<CourtesyClerk> & hold_CC
+    const std::vector<Checker>& hold_Checker,
+    const std::vector<GMC>& hold_GMC,
+    const std::vector<CourtesyClerk>& hold_CC,
+    const std::vector<Janitor>& hold_Janitors,
+    const std::vector<assignments>& hold_assignments
 );
 
 void fillAssignments(
-	std::vector<assignments> & hold_assignments,
-	std::vector<GMC> hold_GMC,
-	std::vector<CourtesyClerk> hold_CC
+    std::vector<assignments>& hold_assignments,
+    const std::vector<GMC>& hold_GMC,
+    const std::vector<CourtesyClerk>& hold_CC,
+    const std::vector<Janitor>& hold_Janitors
 );
-
 
 
 #endif

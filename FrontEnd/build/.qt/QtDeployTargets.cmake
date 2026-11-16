@@ -1,0 +1,2 @@
+set(__QT_DEPLOY_TARGET_GroceryProject_FILE /Users/rylandwilliams/Desktop/Schedule/FrontEnd/build/GroceryProject)
+set(__QT_DEPLOY_TARGET_GroceryProject_TYPE EXECUTABLE)

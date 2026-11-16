@@ -8,6 +8,7 @@
 #include <QTableWidget>
 #include <QHeaderView>
 #include "source.h"
+#include <iostream>
 
 MainWindow::MainWindow()
 {
@@ -84,6 +85,7 @@ MainWindow::MainWindow()
 		std::vector<GMC> newGMCs;
 		std::vector<CourtesyClerk> newCCs;
 		std::vector<assignments> hold_assignments;
+		std::vector<Janitor> hold_Janitors;
 
     		for (int row = 0; row < tableWidget->rowCount(); row++)
 		{
@@ -169,13 +171,31 @@ MainWindow::MainWindow()
 
 		}
 
+		std::cout << "DEBUG: Before moving vectors\n";
+
+		std::cout << "Checkers: " << newCheckers.size() << '\n';
+		std::cout << "GMCs: " << newGMCs.size() << '\n';
+		std::cout << "Courtesy Clerks: " << newCCs.size() << '\n';
+
 		hold_Checker = std::move(newCheckers);
 		hold_GMC = std::move(newGMCs);
 		hold_CC = std::move(newCCs);
+		
+		fillAssignments(
+			hold_assignments,
+			hold_GMC,
+			hold_CC,
+			hold_Janitors
+		);
 
-		print(hold_Checker, hold_GMC, hold_CC);
-		fillAssignments(hold_assignments, hold_GMC, hold_CC);
-
+		print(
+			hold_Checker,
+			hold_GMC,
+			hold_CC,
+			hold_Janitors,
+			hold_assignments
+			);		
+		
 		QMessageBox::information(this,
     				         "Employees Submitted",
     				         QString("Checkers: %1\nGMCs: %2\nCourtesy Clerks: %3")
